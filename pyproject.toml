@@ -1,0 +1,22 @@
+[project]
+name = "conduit"
+version = "0.1.0"
+description = "Syncs data from Snowflake to Google Sheets for last-mile analysis"
+readme = "README.md"
+authors = [
+    { name = "Stone Shen", email = "28269170+stoneshenhc@users.noreply.github.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "google-api-python-client>=2.198.0",
+    "google-auth-httplib2>=0.4.1",
+    "python-dotenv>=1.2.2",
+    "snowflake-connector-python[pandas]>=4.7.2",
+]
+
+[project.scripts]
+conduit = "conduit.sync:main"
+
+[build-system]
+requires = ["uv_build>=0.12.3,<0.13.0"]
+build-backend = "uv_build"
