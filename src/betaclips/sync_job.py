@@ -4,11 +4,11 @@ from .sheets_client import SheetsClient
 
 class SyncJob:
 
-    def __init__(self, query, spreadsheetid):
+    def __init__(self, query, spreadsheetid, sheetname):
 
         self.query = query
         self.spreadsheetid = spreadsheetid
-        self.sheetname = 'Sheet1'
+        self.sheetname = sheetname
 
     def execute(self) -> None:
 

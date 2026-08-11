@@ -1,5 +1,4 @@
 import datetime as dt
-import os
 import pandas as pd
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
