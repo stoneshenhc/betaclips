@@ -1,4 +1,5 @@
 import os
+import pandas as pd
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 # import google python client
@@ -15,22 +16,27 @@ class SheetsClient:
         self.service = build('sheets', 'v4', credentials=creds)
 
     # update to use dataframe later
-    def write(self, sheetid : str, rangename : str, data : list, mode : str = 'overwrite') -> None:
+    def write(self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame, mode: str = 'overwrite') -> None:
 
+        values = [dataframe.columns.tolist()] + dataframe.values.tolist()
         result = self.service.spreadsheets().values().update(
-            spreadsheetId=sheetid,
-            range=rangename,
+            spreadsheetId=spreadsheetid,
+            range=f"{sheetname}!A1",
             valueInputOption='USER_ENTERED',
-            body={'values':data}
+            body={'values':values}
         ).execute()
 
         print(f"{result.get('updatedCells')} cells updated.")
 
         # handle writing, maybe in batches
 
-    def clear(self, sheetid: str) -> None:
-        pass
-        # handle wiping entire sheet
+    def clear(self, spreadsheetid: str, sheetname: str) -> None:
+
+        self.service.spreadsheets().values().clear(
+            spreadsheetId=spreadsheetid,
+            range=f"{sheetname}",
+            body={}
+        )
 
     def newsheet(self, spreadsheetid: str) -> str:
         pass 
