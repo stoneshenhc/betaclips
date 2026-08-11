@@ -1,10 +1,9 @@
+import datetime as dt
 import os
 import pandas as pd
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
-# import google python client
 
-# Start with service account or self account credentials
 SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
 SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
@@ -15,8 +14,9 @@ class SheetsClient:
         creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.service = build('sheets', 'v4', credentials=creds)
 
-    # update to use dataframe later
     def write(self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame, mode: str = 'overwrite') -> None:
+
+        sheetid = self._get_sheet_id(spreadsheetid, sheetname)
 
         values = [dataframe.columns.tolist()] + dataframe.values.tolist()
         result = self.service.spreadsheets().values().update(
@@ -28,14 +28,11 @@ class SheetsClient:
 
         print(f"{result.get('updatedCells')} cells updated.")
 
-        sheetid = self._get_sheet_id(spreadsheetid, sheetname)
-
+        now_utc = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         self.service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheetid,
-            body=self._bold_and_note(sheetid)
+            body=self._bold_and_note(sheetid, f"Last synced: {now_utc} UTC")
         ).execute()
-
-        # handle writing, maybe in batches
 
     def clear(self, spreadsheetid: str, sheetname: str) -> None:
 
@@ -59,7 +56,7 @@ class SheetsClient:
 
         raise ValueError(f"Sheet '{sheetname}' not found in spreadsheet '{spreadsheetid}'.")
 
-    def _bold_and_note(self, sheetid: int) -> dict:
+    def _bold_and_note(self, sheetid: int, note: str) -> dict:
 
         body = {
             'requests': [
@@ -87,7 +84,7 @@ class SheetsClient:
                 {
                     'updateCells': {
                         'rows': {
-                            'values': [{'note': 'testing'}]
+                            'values': [{'note': note}]
                         },
 
                         'fields': 'note',
