@@ -10,7 +10,7 @@ class SyncJob:
         self.spreadsheetid = spreadsheetid
         self.sheetname = 'Sheet1'
 
-    def execute() -> None:
+    def execute(self) -> None:
 
         sfc = SnowflakeClient()
         df = sfc.query(self.query)
