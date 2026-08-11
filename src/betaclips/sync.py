@@ -8,5 +8,6 @@ def main() -> None:
         config = tomllib.load(f)
 
     for job in config.get('jobs', []):
-        job = SyncJob(job['sql'], job['spreadsheetid'], job['sheetname'])
-        job.execute()
+        if job.get('enabled', False):
+            job = SyncJob(job['sql'], job['spreadsheetid'], job['sheetname'])
+            job.execute()
