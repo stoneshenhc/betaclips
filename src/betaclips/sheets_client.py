@@ -28,6 +28,13 @@ class SheetsClient:
 
         print(f"{result.get('updatedCells')} cells updated.")
 
+        sheetid = self._get_sheet_id(spreadsheetid, sheetname)
+
+        self.service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheetid,
+            body=self._bold_and_note(sheetid)
+        ).execute()
+
         # handle writing, maybe in batches
 
     def clear(self, spreadsheetid: str, sheetname: str) -> None:
@@ -38,7 +45,64 @@ class SheetsClient:
             body={}
         )
 
-    def newsheet(self, spreadsheetid: str) -> str:
-        pass 
-        # handle creating new sheet in spreadsheet and returning id
+    def _get_sheet_id(self, spreadsheetid: str, sheetname: str) -> int:
+
+        metadata = self.service.spreadsheets().get(
+            spreadsheetId=spreadsheetid,
+            fields='sheets.properties'
+        ).execute()
+
+        for sheet in metadata.get('sheets', []):
+            properties = sheet.get('properties', {})
+            if properties.get('title') == sheetname:
+                return properties.get('sheetId')
+
+        raise ValueError(f"Sheet '{sheetname}' not found in spreadsheet '{spreadsheetid}'.")
+
+    def _bold_and_note(self, sheetid: int) -> dict:
+
+        body = {
+            'requests': [
+                {
+                    'repeatCell': {
+
+                        'range': {
+                            'sheetId': sheetid,
+                            'startRowIndex': 0,
+                            'endRowIndex': 1
+                        },
+
+                        'cell': {
+                            'userEnteredFormat': {
+                                'textFormat': {
+                                    'bold': True
+                                }
+                            }
+                        },
+
+                        'fields': 'userEnteredFormat.textFormat.bold'
+                    }
+                },
+
+                {
+                    'updateCells': {
+                        'rows': {
+                            'values': [{'note': 'testing'}]
+                        },
+
+                        'fields': 'note',
+
+                        'range': {
+                            'sheetId': sheetid,
+                            'startRowIndex': 0,
+                            'endRowIndex': 1,
+                            'startColumnIndex': 0,
+                            'endColumnIndex': 1
+                        }
+                    }
+                }
+            ]
+        }
+
+        return body
 
