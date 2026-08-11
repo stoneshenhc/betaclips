@@ -1,5 +1,5 @@
 [project]
-name = "conduit"
+name = "betaclips"
 version = "0.1.0"
 description = "Syncs data from Snowflake to Google Sheets for last-mile analysis"
 readme = "README.md"
@@ -15,7 +15,7 @@ dependencies = [
 ]
 
 [project.scripts]
-conduit = "conduit.sync:main"
+betaclips = "betaclips.sync:main"
 
 [build-system]
 requires = ["uv_build>=0.12.3,<0.13.0"]
