@@ -1,5 +1,5 @@
-from .drive_client import DriveClient
-from .validation_result import ValidationResult
+from betaclips.clients.drive_client import DriveClient
+from betaclips.validation.validation_result import ValidationResult
 
 class SheetsAccessValidator:
 

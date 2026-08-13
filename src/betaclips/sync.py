@@ -1,12 +1,12 @@
 import tomllib
 from dotenv import load_dotenv
-from .query_validator import QueryValidator
-from .sheets_access_validator import SheetsAccessValidator
-from .snowflake_client import SnowflakeClient
-from .sheets_client import SheetsClient
-from .drive_client import DriveClient
-from .sync_job import SyncJob
-from .sync_engine import SyncEngine
+from betaclips.validation.query_validator import QueryValidator
+from betaclips.validation.sheets_access_validator import SheetsAccessValidator
+from betaclips.clients.snowflake_client import SnowflakeClient
+from betaclips.clients.sheets_client import SheetsClient
+from betaclips.clients.drive_client import DriveClient
+from betaclips.sync_job import SyncJob
+from betaclips.sync_engine import SyncEngine
 
 def main() -> None:
     load_dotenv()

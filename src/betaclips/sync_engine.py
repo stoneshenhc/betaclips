@@ -1,6 +1,6 @@
-from .snowflake_client import SnowflakeClient
-from .sheets_client import SheetsClient
-from .sync_job import SyncJob
+from betaclips.clients.snowflake_client import SnowflakeClient
+from betaclips.clients.sheets_client import SheetsClient
+from betaclips.sync_job import SyncJob
 
 class SyncEngine:
 
