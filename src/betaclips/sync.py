@@ -31,12 +31,12 @@ def main() -> None:
             print(f"Job {job['name']} has valid SQL. \033[92m\u2714\033[0m")
         else:
             query_error = query_validity.get('msg', "Error message not given")
-            print(f"Job {job['name']} has invalid SQL. \033[91m\u2718\n{query_error}\033]0m")
+            print(f"Job {job['name']} has invalid SQL. \033[91m\u2718\n{query_error}\033[0m")
         if access_validity.get('valid', False):
             print(f"Job {job['name']} has accessible GSheet. \033[92m\u2714\033[0m")
         else:
             access_error = access_validity.get('msg', "Error message not given")
-            print(f"Job {job['name']} points to inaccessible GSheet. \033[91m\u2718\n{access_error}\033]0m")
+            print(f"Job {job['name']} points to inaccessible GSheet. \033[91m\u2718\n{access_error}\033[0m")
 
     #for job in config.get('jobs', []):
     #    if job.get('enabled', False) and job.get('validity', {}).get('valid', False):
