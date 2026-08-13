@@ -5,7 +5,6 @@ import pandas as pd
 class SnowflakeClient:
 
     def __init__(self):
-        
         self.conn_params = {
             'account': os.environ['SNOWFLAKE_ACCOUNT'],
             'user': os.environ['SNOWFLAKE_USER'],
@@ -17,11 +16,9 @@ class SnowflakeClient:
             'private_key_file': os.environ['SNOWFLAKE_PRIVATE_KEY_PATH'],
             'private_key_file_pwd': os.environ['SNOWFLAKE_PRIVATE_KEY_PASSPHRASE']
         }
-
         self.conn = sc.connect(**self.conn_params)
 
     def query(self, sql: str) -> pd.DataFrame:
-
         cursor = self.conn.cursor()
         try:
             cursor.execute(sql)
@@ -31,4 +28,3 @@ class SnowflakeClient:
 
     def close(self) -> None:
         self.conn.close()
-            
