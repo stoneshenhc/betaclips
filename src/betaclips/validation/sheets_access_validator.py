@@ -1,5 +1,5 @@
 from betaclips.clients.drive_client import DriveClient
-from betaclips.validation.validation_result import ValidationResult
+from betaclips.validation.result import ValidationResult
 
 class SheetsAccessValidator:
 
@@ -8,7 +8,7 @@ class SheetsAccessValidator:
     def __init__(self, drive_client: DriveClient):
         self.drive_client = drive_client
 
-    def validate_access(self, spreadsheetid) -> ValidationResult:
+    def validate(self, spreadsheetid) -> ValidationResult:
         # figure out how to deal with files that don't exist or cannot be accessed
         permissions = self.drive_client.get_permissions(spreadsheetid)
         for perm in permissions:
