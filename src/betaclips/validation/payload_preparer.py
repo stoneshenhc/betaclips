@@ -5,7 +5,7 @@ class PayloadPreparer:
 
     # For prepping the data to be written into the google sheet. Mainly handles size constraints
 
-    MAX_BYTE_SIZE = 1000
+    MAX_BYTE_SIZE = 50 * 1024 * 1024
     MAX_CELL_COUNT = 10000000
     MAX_COLUMN_COUNT = 18278
 

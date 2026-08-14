@@ -12,16 +12,17 @@ from betaclips.sync_engine import SyncEngine
 
 def main() -> None:
     load_dotenv()
-    sf_client = SnowflakeClient()
+    with open("./config/jobs.toml", "rb") as f:
+        config = tomllib.load(f)
+    timeout = config.get('timeout', None)
+
+    sf_client = SnowflakeClient(timeout)
     sheets_client = SheetsClient()
     drive_client = DriveClient()
     query_validator = QueryValidator(sf_client)
     sheets_validator = SheetsAccessValidator(drive_client)
     validation_engine = ValidationEngine(query_validator, sheets_validator)
     sync_engine = SyncEngine(sf_client, sheets_client)
-
-    with open("./config/jobs.toml", "rb") as f:
-        config = tomllib.load(f)
 
     jobs = [SyncJob(job['name'], job['sql'], job['spreadsheetid'], job['sheetname']) for job in config.get('jobs', [])]
     for sync_job in jobs:
