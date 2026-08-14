@@ -22,29 +22,25 @@ class SheetsClient:
         # TODO: consider taking this prep stage out of this class and into SyncEngine
         preparer = PayloadPreparer()
         print(f"Size: {preparer.estimated_size(values)}")
-        shape_check = preparer.exceed_sheet_limits(values)
-        if shape_check.valid:
-            batches = preparer.prepare(values)
-            row_counter = 1
-            self.clear(spreadsheetid, sheetname)
-            for batch in batches:
-                result = self.service.spreadsheets().values().update(
-                    spreadsheetId=spreadsheetid,
-                    range=f"{sheetname}!A{row_counter}",
-                    valueInputOption='USER_ENTERED',
-                    body={'values':batch}
-                ).execute()
-                print(f"Values len: {len(values)}, batch len: {len(batch)}")
-                print(f"{result.get('updatedCells')} cells updated.")
-                row_counter += len(batch)
-            now_utc = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
-            self.service.spreadsheets().batchUpdate(
+        preparer.check_sheet_limits(values)
+        batches = preparer.prepare(values)
+        row_counter = 1
+        self.clear(spreadsheetid, sheetname)
+        for batch in batches:
+            result = self.service.spreadsheets().values().update(
                 spreadsheetId=spreadsheetid,
-                body=self._bold_and_note(sheetid, f"Last synced: {now_utc} UTC")
+                range=f"{sheetname}!A{row_counter}",
+                valueInputOption='USER_ENTERED',
+                body={'values':batch}
             ).execute()
-        else:
-            #TODO: log
-            pass
+            print(f"Values len: {len(values)}, batch len: {len(batch)}")
+            print(f"{result.get('updatedCells')} cells updated.")
+            row_counter += len(batch)
+        now_utc = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        self.service.spreadsheets().batchUpdate(
+            spreadsheetId=spreadsheetid,
+            body=self._bold_and_note(sheetid, f"Last synced: {now_utc} UTC")
+        ).execute()
 
     def clear(self, spreadsheetid: str, sheetname: str) -> None:
 

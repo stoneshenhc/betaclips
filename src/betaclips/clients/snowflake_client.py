@@ -1,7 +1,10 @@
 import os
 import snowflake.connector as sc
 import pandas as pd
+from snowflake.connector.cursor import SnowflakeCursor
 from betaclips.validation.config_validation import validate_timeout
+from betaclips.exceptions import QueryTooLargeError
+from betaclips.constants import MAX_CELLS, MAX_COLUMNS
 
 class SnowflakeClient:
 
@@ -28,9 +31,17 @@ class SnowflakeClient:
         cursor = self.conn.cursor()
         try:
             cursor.execute(sql)
+            self._check_result_shape(cursor)
             return cursor.fetch_pandas_all()
         finally:
             cursor.close()
+
+    @staticmethod
+    def _check_result_shape(cursor: SnowflakeCursor) -> None:
+        rows = cursor.rowcount
+        columns = len(cursor.description)
+        if rows * columns > MAX_CELLS or columns > MAX_COLUMNS:
+            raise QueryTooLargeError(rows, columns)
 
     def close(self) -> None:
         self.conn.close()
