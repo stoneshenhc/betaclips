@@ -27,8 +27,6 @@ def main() -> None:
     for sync_job in jobs:
         validation = validation_engine.validate(sync_job)
         print(validation.describe(sync_job.name))
-    #for job in config.get('jobs', []):
-    #    if job.get('enabled', False) and job.get('validity', {}).get('valid', False):
-    #        job = SyncJob(job['name'], job['sql'], job['spreadsheetid'], job['sheetname'])
-    #        engine.execute(job)
+    for sync_job in jobs:
+        sync_engine.execute(sync_job)
     sync_engine.close()
