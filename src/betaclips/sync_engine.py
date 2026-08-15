@@ -15,7 +15,9 @@ class SyncEngine:
     def execute(self, job: SyncJob) -> None:
         df = self.sf_client.query(job.query)
         metadata = self.sheets_client.write(
-            job.spreadsheetid, job.sheetname, df
+            job.spreadsheet_id,
+            job.sheet_name,
+            df,
         )
         if len(df) + 1 > metadata[0] or len(df.columns) > metadata[1]:
             raise PartialWriteError(

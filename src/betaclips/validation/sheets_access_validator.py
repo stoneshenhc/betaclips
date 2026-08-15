@@ -8,8 +8,8 @@ class SheetsAccessValidator:
     def __init__(self, drive_client: DriveClient):
         self.drive_client = drive_client
 
-    def validate(self, spreadsheetid) -> ValidationResult:
-        permissions = self.drive_client.get_permissions(spreadsheetid)
+    def validate(self, spreadsheet_id) -> ValidationResult:
+        permissions = self.drive_client.get_permissions(spreadsheet_id)
         for perm in permissions:
             email = perm.get('emailAddress', '')
             if email == 'writer@betaclips.iam.gserviceaccount.com':
@@ -19,10 +19,10 @@ class SheetsAccessValidator:
                 else:
                     return ValidationResult(
                         False,
-                        f"Current role is {role}, but needs at least writer."
+                        f"Current role is {role}, but needs at least writer.",
                     )
         return ValidationResult(
             False,
             "Spreadsheet file does not exist or is not shared with "
-            "service account"
+            "service account",
         )

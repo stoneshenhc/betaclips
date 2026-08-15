@@ -36,7 +36,7 @@ def main() -> None:
     ]
     sync_jobs = [
         SyncJob(
-            job['name'], job['sql'], job['spreadsheetid'], job['sheetname']
+            job['name'], job['sql'], job['spreadsheet_id'], job['sheet_name']
         )
         for job in jobs
     ]

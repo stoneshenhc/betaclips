@@ -9,15 +9,16 @@ class DriveClient:
 
     def __init__(self):
         creds = Credentials.from_service_account_file(
-            self.SERVICE_ACCOUNT_FILE, scopes=self.SCOPES
+            self.SERVICE_ACCOUNT_FILE,
+            scopes=self.SCOPES,
         )
         self.service = build('drive', 'v3', credentials=creds)
 
-    def get_permissions(self, fileid: str) -> list:
+    def get_permissions(self, file_id: str) -> list:
         try:
             response = self.service.permissions().list(
-                fileId=fileid,
-                fields='permissions(emailAddress, role)'
+                fileId=file_id,
+                fields='permissions(emailAddress, role)',
             ).execute()
             return response.get('permissions', [])
         except HttpError as error:

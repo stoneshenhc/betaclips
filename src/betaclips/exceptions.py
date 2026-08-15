@@ -42,10 +42,10 @@ class QueryTooLargeError(JobError):
 class SpreadsheetNotFoundError(JobError):
     """The Google Sheet file does not exist or could not be accessed."""
 
-    def __init__(self, spreadsheetid: str):
-        self.spreadsheetid = spreadsheetid
+    def __init__(self, spreadsheet_id: str):
+        self.spreadsheet_id = spreadsheet_id
         super().__init__(
-            f"The Google Sheet with id: {spreadsheetid} could not be "
+            f"The Google Sheet with id: {spreadsheet_id} could not be "
             f"accessed or does not exist."
         )
 
@@ -53,12 +53,12 @@ class SpreadsheetNotFoundError(JobError):
 class SheetNotFoundError(JobError):
     """The specific tab within the Google Sheet does not exist."""
 
-    def __init__(self, spreadsheetid: str, sheetname: str):
-        self.spreadsheetid = spreadsheetid
-        self.sheetname = sheetname
+    def __init__(self, spreadsheet_id: str, sheet_name: str):
+        self.spreadsheet_id = spreadsheet_id
+        self.sheet_name = sheet_name
         super().__init__(
-            f"The tab named \"{sheetname}\" within the spreadsheet with "
-            f"id: {spreadsheetid} does not exist."
+            f"The tab named \"{sheet_name}\" within the spreadsheet with "
+            f"id: {spreadsheet_id} does not exist."
         )
 
 
@@ -66,11 +66,11 @@ class SpreadsheetPermissionError(JobError):
     """The specific tab within the Google Sheet cannot be written into by
     the program."""
 
-    def __init__(self, spreadsheetid: str):
-        self.spreadsheetid = spreadsheetid
+    def __init__(self, spreadsheet_id: str):
+        self.spreadsheet_id = spreadsheet_id
         super().__init__(
             f"The service account does not have editing access (but may "
-            f"have read access) to the spreadsheet with id: {spreadsheetid}."
+            f"have read access) to the spreadsheet with id: {spreadsheet_id}."
         )
 
 
@@ -78,12 +78,12 @@ class SheetWriteError(JobError):
     """Writing of values into Google Sheet denied, likely because of
     malformed data or size limits"""
 
-    def __init__(self, spreadsheetid: str, sheetname: str, reason: str):
-        self.spreadsheetid = spreadsheetid
+    def __init__(self, spreadsheet_id: str, sheet_name: str, reason: str):
+        self.spreadsheet_id = spreadsheet_id
         self.reason = reason
         super().__init__(
-            f"Data could not be written into {spreadsheetid=} "
-            f"{sheetname=}: {reason}"
+            f"Data could not be written into {spreadsheet_id=} "
+            f"{sheet_name=}: {reason}"
         )
 
 
