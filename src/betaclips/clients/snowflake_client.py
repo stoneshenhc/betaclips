@@ -3,7 +3,7 @@ import snowflake.connector as sc
 import pandas as pd
 from snowflake.connector.cursor import SnowflakeCursor
 from betaclips.validation.config_validation import validate_timeout
-from betaclips.exceptions import QueryTooLargeError
+from betaclips.exceptions import QueryTimeoutError, QueryTooLargeError, SQLExecutionError
 from betaclips.constants import MAX_CELLS, MAX_COLUMNS
 
 class SnowflakeClient:
@@ -11,8 +11,8 @@ class SnowflakeClient:
     def __init__(self, statement_timeout: int | None = None):
         session_params = {}
         if statement_timeout is not None:
-            timeout = validate_timeout(statement_timeout)
-            session_params['STATEMENT_TIMEOUT_IN_SECONDS'] = timeout
+            self.statement_timeout = validate_timeout(statement_timeout)
+            session_params['STATEMENT_TIMEOUT_IN_SECONDS'] = self.statement_timeout
         conn_params = {
             'account': os.environ['SNOWFLAKE_ACCOUNT'],
             'user': os.environ['SNOWFLAKE_USER'],
@@ -21,6 +21,7 @@ class SnowflakeClient:
             'database': os.environ['SNOWFLAKE_DATABASE'],
             'schema': os.environ['SNOWFLAKE_SCHEMA'],
             'role': os.environ['SNOWFLAKE_ROLE'],
+            'secondary_roles': os.environ['SNOWFLAKE_SECONDARY_ROLES'],
             'private_key_file': os.environ['SNOWFLAKE_PRIVATE_KEY_PATH'],
             'private_key_file_pwd': os.environ['SNOWFLAKE_PRIVATE_KEY_PASSPHRASE'],
             'session_parameters': session_params
@@ -33,6 +34,10 @@ class SnowflakeClient:
             cursor.execute(sql)
             self._check_result_shape(cursor)
             return cursor.fetch_pandas_all()
+        except sc.errors.ProgrammingError as error:
+            if error.errno == 630:
+                raise QueryTimeoutError(self.statement_timeout)
+            raise SQLExecutionError(error.msg)
         finally:
             cursor.close()
 

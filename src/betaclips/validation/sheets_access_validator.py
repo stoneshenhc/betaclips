@@ -9,7 +9,6 @@ class SheetsAccessValidator:
         self.drive_client = drive_client
 
     def validate(self, spreadsheetid) -> ValidationResult:
-        # figure out how to deal with files that don't exist or cannot be accessed
         permissions = self.drive_client.get_permissions(spreadsheetid)
         for perm in permissions:
             if perm.get('emailAddress', '') == 'writer@betaclips.iam.gserviceaccount.com':

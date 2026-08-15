@@ -19,8 +19,5 @@ class DriveClient:
             ).execute()
             return response.get('permissions',[])
         except HttpError as error:
-            if error._get_reason().lower().find("file not found") > -1:
+            if int(error.resp.status) == 404:
                 return []
-            else:
-                # TODO: Raise an exception
-                print(f"An error occured retreiving Drive file permissions: {error}")
