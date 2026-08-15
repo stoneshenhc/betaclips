@@ -36,7 +36,7 @@ class SheetsClient:
                     range=f"'{sheetname}'!A{row_counter}",
                     valueInputOption='USER_ENTERED',
                     body={'values':batch}
-                ).execute()
+                ).execute(num_retries=5)
             except HttpError as error:
                 if int(error.resp.status) == 400:
                     raise SheetWriteError(spreadsheetid, sheetname, error._get_reason())
@@ -56,7 +56,7 @@ class SheetsClient:
                 spreadsheetId=spreadsheetid,
                 range=f"'{sheetname}'",
                 body={}
-            ).execute()
+            ).execute(num_retries=3)
         except HttpError as error:
             if int(error.resp.status) == 403:
                 raise SpreadsheetPermissionError(spreadsheetid)
@@ -68,7 +68,7 @@ class SheetsClient:
             metadata = self.service.spreadsheets().get(
                 spreadsheetId=spreadsheetid,
                 fields='sheets.properties'
-            ).execute()
+            ).execute(num_retries=3)
         except HttpError as error:
             if int(error.resp.status == 404):
                 raise SpreadsheetNotFoundError(spreadsheetid)
