@@ -8,7 +8,9 @@ class DriveClient:
     SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
     def __init__(self):
-        creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = Credentials.from_service_account_file(
+            self.SERVICE_ACCOUNT_FILE, scopes=self.SCOPES
+        )
         self.service = build('drive', 'v3', credentials=creds)
 
     def get_permissions(self, fileid: str) -> list:
@@ -17,8 +19,7 @@ class DriveClient:
                 fileId=fileid,
                 fields='permissions(emailAddress, role)'
             ).execute()
-            return response.get('permissions',[])
+            return response.get('permissions', [])
         except HttpError as error:
             if int(error.resp.status) == 404:
                 return []
-

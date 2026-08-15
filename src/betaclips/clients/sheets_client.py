@@ -6,21 +6,33 @@ from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
 from betaclips.validation.payload_preparer import PayloadPreparer
-from betaclips.exceptions import SpreadsheetNotFoundError, SheetNotFoundError, SpreadsheetPermissionError, SheetWriteError
+from betaclips.exceptions import (
+    SpreadsheetNotFoundError,
+    SheetNotFoundError,
+    SpreadsheetPermissionError,
+    SheetWriteError,
+)
+
 
 class SheetsClient:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
     SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
     def __init__(self):
-        creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
+        creds = Credentials.from_service_account_file(
+            self.SERVICE_ACCOUNT_FILE, scopes=self.SCOPES
+        )
         self.service = build('sheets', 'v4', credentials=creds)
 
-    def write(self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame, mode: str = 'overwrite') -> tuple[int, int, int]:
+    def write(
+        self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame,
+        mode: str = 'overwrite'
+    ) -> tuple[int, int, int]:
         sheetid = self._get_sheet_id(spreadsheetid, sheetname)
 
         values = [dataframe.columns.tolist()] + dataframe.values.tolist()
-        preparer = PayloadPreparer() # TODO: make this just helper functions, not a class
+        # TODO: make this just helper functions, not a class
+        preparer = PayloadPreparer()
         preparer.check_sheet_limits(values)
         batches = preparer.prepare(values)
         row_counter = 1
@@ -33,18 +45,22 @@ class SheetsClient:
                     spreadsheetId=spreadsheetid,
                     range=f"'{sheetname}'!A{row_counter}",
                     valueInputOption='USER_ENTERED',
-                    body={'values':batch}
+                    body={'values': batch}
                 ).execute(num_retries=5)
             except HttpError as error:
                 if int(error.resp.status) == 400:
-                    raise SheetWriteError(spreadsheetid, sheetname, error._get_reason())
+                    raise SheetWriteError(
+                        spreadsheetid, sheetname, error._get_reason()
+                    )
                 raise error
             updated_rows += result.get('updatedRows', 0)
             updated_cols = max(updated_cols, result.get('updatedColumns', 0))
             batch_counter += 1
             row_counter += len(batch)
 
-        now_utc = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+        now_utc = dt.datetime.now(dt.timezone.utc).strftime(
+            '%Y-%m-%d %H:%M:%S'
+        )
         self.service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheetid,
             body=self._bold_and_note(sheetid, f"Last synced: {now_utc} UTC")
@@ -126,4 +142,3 @@ class SheetsClient:
             ]
         }
         return body
-

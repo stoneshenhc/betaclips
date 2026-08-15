@@ -5,7 +5,10 @@ from betaclips.sync_job import SyncJob
 
 
 class ValidationEngine:
-    def __init__(self, query_validator: QueryValidator, access_validator: SheetsAccessValidator):
+    def __init__(
+        self, query_validator: QueryValidator,
+        access_validator: SheetsAccessValidator
+    ):
         self.query_validator = query_validator
         self.access_validator = access_validator
 
@@ -15,7 +18,7 @@ class ValidationEngine:
         return JobValidationResult(query_check, access_check)
 
     def validate_all(self, jobs: list[SyncJob]) -> list[JobValidationResult]:
-        # TODO: Add error handling functionality, error does not kill the validation. Otherwise this method is useless.
+        # TODO: Add error handling functionality, error does not kill the
+        # validation. Otherwise this method is useless.
         # return [self.validate(job) for job in jobs]
         pass
-

@@ -17,4 +17,3 @@ class QueryValidator:
             return ValidationResult(False, error.msg)
         finally:
             cursor.close()
-

@@ -9,5 +9,6 @@ class RunResult:
     rows: int
     cols: int
     error: str | None = None
-    executed_at: datetime = field(default_factory = lambda: datetime.now(timezone.utc))
-
+    executed_at: datetime = field(
+        default_factory=lambda: datetime.now(timezone.utc)
+    )
