@@ -14,9 +14,9 @@ class SyncEngine:
         df = self.sf_client.query(job.query)
         metadata = self.sheets_client.write(job.spreadsheetid, job.sheetname, df)
         if len(df) + 1 > metadata[0] or len(df.columns) > metadata[1]:
-            raise PartialWriteError()
+            raise PartialWriteError(len(df) + 1, len(df.columns), metadata[0], metadata[1])
         elif len(df) + 1 < metadata[0] or len(df.columns) < metadata[1]:
-            raise ExcessiveWriteError()
+            raise ExcessiveWriteError(len(df) + 1, len(df.columns), metadata[0], metadata[1])
         return RunResult(job.name, 'success', metadata[0], metadata[1])
 
     def close(self):
