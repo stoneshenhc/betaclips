@@ -5,7 +5,7 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-from betaclips.validation.payload_preparer import PayloadPreparer
+from betaclips.clients.sheets_payload import check_sheet_limits, batch_values
 from betaclips.exceptions import (
     SpreadsheetNotFoundError,
     SheetNotFoundError,
@@ -36,10 +36,8 @@ class SheetsClient:
         sheet_id = self._get_sheet_id(spreadsheet_id, sheet_name)
 
         values = [dataframe.columns.tolist()] + dataframe.values.tolist()
-        # TODO: make this just helper functions, not a class
-        preparer = PayloadPreparer()
-        preparer.check_sheet_limits(values)
-        batches = preparer.prepare(values)
+        check_sheet_limits(values)
+        batches = batch_values(values)
         row_counter = 1
         updated_rows = updated_cols = batch_counter = 0
 

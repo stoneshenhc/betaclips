@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.validation_engine import ValidationEngine
-from betaclips.validation.validation import JobValidationResult
+from betaclips.validation.results import JobValidationResult
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.clients.drive_client import DriveClient
@@ -21,7 +21,7 @@ def main() -> None:
     load_dotenv()
     with open("./config/jobs.toml", "rb") as f:
         config = tomllib.load(f)
-    timeout = config.get('timeout', None)
+    timeout = validate_timeout(config.get('timeout', None))
 
     sf_client = SnowflakeClient(timeout)
     sheets_client = SheetsClient()
@@ -62,3 +62,14 @@ def log_result(result: RunResult, log_path: str = 'jobresults.jsonl') -> None:
     result_dict = asdict(result)
     with open(log_path, 'a') as f:
         f.write(json.dumps(result_dict, default=str) + '\n')
+
+def validate_timeout(value) -> int:
+    timeout = int(value)
+    if not 0 <= timeout <= 86400:
+        raise ValueError(
+            f"Timeout: {timeout} not allowed; must be set between 0 and "
+            f"86400 seconds"
+        )
+    else:
+        return timeout
+

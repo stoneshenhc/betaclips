@@ -4,7 +4,6 @@ import snowflake.connector as sc
 import pandas as pd
 from snowflake.connector.cursor import SnowflakeCursor
 
-from betaclips.validation.validation import validate_timeout
 from betaclips.exceptions import (
     QueryTimeoutError,
     QueryTooLargeError,
@@ -15,9 +14,9 @@ from betaclips.constants import MAX_CELLS, MAX_COLUMNS
 
 class SnowflakeClient:
     def __init__(self, statement_timeout: int | None = None):
+        self.statement_timeout = statement_timeout
         session_params = {}
         if statement_timeout is not None:
-            self.statement_timeout = validate_timeout(statement_timeout)
             session_params['STATEMENT_TIMEOUT_IN_SECONDS'] = (
                 self.statement_timeout
             )
