@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.validation_engine import ValidationEngine
-from betaclips.validation.result import JobValidationResult
+from betaclips.validation.validation import JobValidationResult
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.clients.drive_client import DriveClient
@@ -31,8 +31,15 @@ def main() -> None:
     validation_engine = ValidationEngine(query_validator, sheets_validator)
     sync_engine = SyncEngine(sf_client, sheets_client)
 
-    jobs = [job for job in config.get('jobs', []) if job.get('enabled', True) == True]
-    sync_jobs = [SyncJob(job['name'], job['sql'], job['spreadsheetid'], job['sheetname']) for job in jobs]
+    jobs = [
+        job for job in config.get('jobs', []) if job.get('enabled', True)
+    ]
+    sync_jobs = [
+        SyncJob(
+            job['name'], job['sql'], job['spreadsheet_id'], job['sheet_name']
+        )
+        for job in jobs
+    ]
     for sync_job in sync_jobs:
         validation = validation_engine.validate(sync_job)
         print(validation.describe(sync_job.name))
@@ -42,7 +49,9 @@ def main() -> None:
                 result = sync_engine.execute(sync_job)
                 log_result(result)
             except JobError as error:
-                result = RunResult(sync_job.name, 'failure', None, None, str(error))
+                result = RunResult(
+                    sync_job.name, 'failure', None, None, str(error)
+                )
                 log_result(result)
     finally:
         sync_engine.close()
@@ -53,4 +62,3 @@ def log_result(result: RunResult, log_path: str = 'jobresults.jsonl') -> None:
     result_dict = asdict(result)
     with open(log_path, 'a') as f:
         f.write(json.dumps(result_dict, default=str) + '\n')
-

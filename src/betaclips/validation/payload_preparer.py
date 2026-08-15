@@ -5,7 +5,8 @@ from betaclips.exceptions import QueryTooLargeError
 
 
 class PayloadPreparer:
-    """For prepping the data to be written into the google sheet. Mainly handles size constraints."""
+    """For prepping the data to be written into the google sheet. Mainly
+    handles size constraints."""
 
     # TODO: Turn into static methods or into a class-less module
     def estimated_size(self, values: list[list]) -> int:
@@ -26,9 +27,11 @@ class PayloadPreparer:
     def prepare(self, values: list[list]) -> list[list[list]]:
         rows = self.row_count(values)
         batch_loads = []
-        batches = int(-(-self.estimated_size(values) // (0.8 * MAX_PAYLOAD_SIZE))) # same as ceiling
+        # same as ceiling
+        batches = int(
+            -(-self.estimated_size(values) // (0.8 * MAX_PAYLOAD_SIZE))
+        )
         batch_size = -(-rows // batches)
         for i in range(batches):
             batch_loads.append(values[i*batch_size:(i+1)*batch_size])
         return batch_loads
-
