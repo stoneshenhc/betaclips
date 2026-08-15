@@ -54,3 +54,21 @@ class SheetWriteError(JobError):
         self.spreadsheetid = spreadsheetid
         self.reason = reason
         super().__init__(f"Data could not be written into {spreadsheetid=} {sheetname=}: {reason}")
+
+class MismatchWriteError(JobError):
+    """Different number of rows or columns written into Sheet than in query results"""
+
+    def __init__(self, queried_rows: int, queried_cols: int, written_rows: int, written_cols: int):
+        self.queried_rows = queried_rows
+        self.queried_cols = queried_cols
+        self.written_rows = written_rows
+        self.written_cols = written_cols
+        super().__init__(f"Query returned {queried_rows} rows x {queried_cols}. But {written_rows} x {written_cols} wrote to sheet.")
+
+class PartialWriteError(MismatchWriteError):
+    pass
+
+class ExcessiveWriteError(MismatchWriteError):
+    pass
+     
+

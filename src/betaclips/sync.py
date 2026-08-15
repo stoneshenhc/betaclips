@@ -30,7 +30,7 @@ def main() -> None:
 
     jobs = [job for job in config.get('jobs', []) if job.get('enabled', True) == True]
     sync_jobs = [SyncJob(job['name'], job['sql'], job['spreadsheetid'], job['sheetname']) for job in jobs]
-    for sync_job in jobs:
+    for sync_job in sync_jobs:
         validation = validation_engine.validate(sync_job)
         print(validation.describe(sync_job.name))
     try:
@@ -47,6 +47,5 @@ def main() -> None:
 # TODO: Move into its own module
 def log_result(result: RunResult, log_path: str = 'jobresults.jsonl') -> None:
     result_dict = asdict(result)
-    result_dict['timestamp'] = 'test'
     with open(log_path, 'a') as f:
-        f.write(json.dumps(result_dict) + '\n')
+        f.write(json.dumps(result_dict, default=str) + '\n')
