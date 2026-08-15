@@ -4,7 +4,7 @@ import snowflake.connector as sc
 import pandas as pd
 from snowflake.connector.cursor import SnowflakeCursor
 
-from betaclips.validation.validations import validate_timeout
+from betaclips.validation.validation import validate_timeout
 from betaclips.exceptions import (
     QueryTimeoutError,
     QueryTooLargeError,

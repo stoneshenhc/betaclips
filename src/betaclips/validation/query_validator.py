@@ -1,7 +1,7 @@
 import snowflake.connector as sc
 
 from betaclips.clients.snowflake_client import SnowflakeClient
-from betaclips.validation.validations import ValidationResult
+from betaclips.validation.validation import ValidationResult
 
 
 class QueryValidator:

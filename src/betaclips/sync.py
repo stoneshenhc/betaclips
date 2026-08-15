@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.validation_engine import ValidationEngine
-from betaclips.validation.validations import JobValidationResult
+from betaclips.validation.validation import JobValidationResult
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.clients.drive_client import DriveClient
