@@ -1,3 +1,13 @@
+def validate_timeout(value) -> int:
+    timeout = int(value)
+    if not 0 <= timeout <= 86400:
+        raise ValueError(
+            f"Timeout: {timeout} not allowed; must be set between 0 and "
+            f"86400 seconds"
+        )
+    else:
+        return timeout
+
 class ValidationResult:
     def __init__(self, valid: bool, msg: str | None):
         self.valid = valid
@@ -15,7 +25,9 @@ class ValidationResult:
 
 class JobValidationResult:
     def __init__(
-        self, query_check: ValidationResult, access_check: ValidationResult
+        self,
+        query_check: ValidationResult,
+        access_check: ValidationResult,
     ):
         self.query_check = query_check
         self.access_check = access_check

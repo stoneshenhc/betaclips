@@ -1,6 +1,6 @@
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
-from betaclips.validation.result import JobValidationResult
+from betaclips.validation.validations import JobValidationResult
 from betaclips.sync_job import SyncJob
 
 
