@@ -4,8 +4,8 @@ from betaclips.sync_job import SyncJob
 from betaclips.run_result import RunResult
 from betaclips.exceptions import PartialWriteError, ExcessiveWriteError
 
-class SyncEngine:
 
+class SyncEngine:
     def __init__(self, sf_client: SnowflakeClient, sheets_client: SheetsClient):
         self.sf_client = sf_client
         self.sheets_client = sheets_client
@@ -21,3 +21,4 @@ class SyncEngine:
 
     def close(self):
         self.sf_client.close()
+

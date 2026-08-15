@@ -1,9 +1,10 @@
 import snowflake.connector as sc
+
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.validation.result import ValidationResult
 
-class QueryValidator:
 
+class QueryValidator:
     def __init__(self, sf_client: SnowflakeClient):
         self.sf_client = sf_client
 
@@ -16,3 +17,4 @@ class QueryValidator:
             return ValidationResult(False, error.msg)
         finally:
             cursor.close()
+

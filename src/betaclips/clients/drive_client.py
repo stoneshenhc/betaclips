@@ -2,10 +2,10 @@ from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 
-SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
 class DriveClient:
+    SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
+    SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
     def __init__(self):
         creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
@@ -21,3 +21,4 @@ class DriveClient:
         except HttpError as error:
             if int(error.resp.status) == 404:
                 return []
+

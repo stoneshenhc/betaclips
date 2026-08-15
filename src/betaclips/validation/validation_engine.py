@@ -3,8 +3,8 @@ from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.result import JobValidationResult
 from betaclips.sync_job import SyncJob
 
-class ValidationEngine:
 
+class ValidationEngine:
     def __init__(self, query_validator: QueryValidator, access_validator: SheetsAccessValidator):
         self.query_validator = query_validator
         self.access_validator = access_validator
@@ -18,3 +18,4 @@ class ValidationEngine:
         # TODO: Add error handling functionality, error does not kill the validation. Otherwise this method is useless.
         # return [self.validate(job) for job in jobs]
         pass
+

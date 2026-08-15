@@ -1,7 +1,9 @@
 import tomllib
 import json
-from dotenv import load_dotenv
 from dataclasses import asdict
+
+from dotenv import load_dotenv
+
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.validation_engine import ValidationEngine
@@ -13,6 +15,7 @@ from betaclips.sync_job import SyncJob
 from betaclips.sync_engine import SyncEngine
 from betaclips.exceptions import JobError
 from betaclips.run_result import RunResult
+
 
 def main() -> None:
     load_dotenv()
@@ -44,8 +47,10 @@ def main() -> None:
     finally:
         sync_engine.close()
 
+
 # TODO: Move into its own module
 def log_result(result: RunResult, log_path: str = 'jobresults.jsonl') -> None:
     result_dict = asdict(result)
     with open(log_path, 'a') as f:
         f.write(json.dumps(result_dict, default=str) + '\n')
+

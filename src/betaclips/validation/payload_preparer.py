@@ -1,6 +1,8 @@
 import json
+
 from betaclips.constants import MAX_PAYLOAD_SIZE, MAX_CELLS, MAX_COLUMNS
 from betaclips.exceptions import QueryTooLargeError
+
 
 class PayloadPreparer:
     """For prepping the data to be written into the google sheet. Mainly handles size constraints."""

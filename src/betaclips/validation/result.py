@@ -1,5 +1,4 @@
 class ValidationResult:
-    
     def __init__(self, valid: bool, msg: str | None):
         self.valid = valid
         self.msg = msg
@@ -11,7 +10,6 @@ class ValidationResult:
             return f"Job _{name}_ does not have valid {subject}. \033[91m\u2718\n{self.msg}\033[0m"
 
 class JobValidationResult:
-
     def __init__(self, query_check: ValidationResult, access_check: ValidationResult):
         self.query_check = query_check
         self.access_check = access_check
@@ -23,3 +21,4 @@ class JobValidationResult:
         query_desc = self.query_check.describe(name, 'SQL')
         access_desc = self.access_check.describe(name, 'GSheet access')
         return f"{query_desc}\n{access_desc}"
+

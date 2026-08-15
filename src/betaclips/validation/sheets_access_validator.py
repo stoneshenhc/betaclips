@@ -1,8 +1,8 @@
 from betaclips.clients.drive_client import DriveClient
 from betaclips.validation.result import ValidationResult
 
-class SheetsAccessValidator:
 
+class SheetsAccessValidator:
     VALID_ROLES = ('writer', 'owner', 'organzier', 'fileOrganizer')
 
     def __init__(self, drive_client: DriveClient):
@@ -18,3 +18,4 @@ class SheetsAccessValidator:
                 else:
                     return ValidationResult(False, f"Current role is {role}, but needs at least writer.")
         return ValidationResult(False, "Spreadsheet file does not exist or is not shared with service account")
+
