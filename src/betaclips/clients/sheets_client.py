@@ -16,7 +16,7 @@ class SheetsClient:
         creds = Credentials.from_service_account_file(SERVICE_ACCOUNT_FILE, scopes=SCOPES)
         self.service = build('sheets', 'v4', credentials=creds)
 
-    def write(self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame, mode: str = 'overwrite') -> None:
+    def write(self, spreadsheetid: str, sheetname: str, dataframe: pd.DataFrame, mode: str = 'overwrite') -> tuple[int, int, int]:
 
         sheetid = self._get_sheet_id(spreadsheetid, sheetname)
         values = [dataframe.columns.tolist()] + dataframe.values.tolist()
@@ -27,6 +27,7 @@ class SheetsClient:
         batches = preparer.prepare(values)
 
         row_counter = 1
+        updated_rows = updated_cols = batch_counter = 0
         self.clear(spreadsheetid, sheetname)
 
         for batch in batches:
@@ -41,13 +42,16 @@ class SheetsClient:
                 if int(error.resp.status) == 400:
                     raise SheetWriteError(spreadsheetid, sheetname, error._get_reason())
                 raise error
-            print(f"{result.get('updatedCells')} cells updated.")
+            updated_rows += result.get('updatedRows', 0)
+            updated_cols = max(updated_cols, result.get('updatedColumns', 0))
+            batch_counter += 1
             row_counter += len(batch)
         now_utc = dt.datetime.now(dt.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
         self.service.spreadsheets().batchUpdate(
             spreadsheetId=spreadsheetid,
             body=self._bold_and_note(sheetid, f"Last synced: {now_utc} UTC")
         ).execute()
+        return (updated_rows, updated_cols, batch_counter)
 
     def clear(self, spreadsheetid: str, sheetname: str) -> None:
 

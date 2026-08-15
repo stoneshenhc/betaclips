@@ -17,3 +17,6 @@ credentials/
 
 # Job configuruations
 config/
+
+# Local logging
+jobresults.jsonl
