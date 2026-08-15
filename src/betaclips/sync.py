@@ -37,13 +37,10 @@ def main() -> None:
         for sync_job in sync_jobs:
             try:
                 result = sync_engine.execute(sync_job)
-                print(result)
                 log_result(result)
             except JobError as error:
                 result = RunResult(sync_job.name, 'failure', None, None, str(error))
-                print(result)
                 log_result(result)
-                # log it
     finally:
         sync_engine.close()
 
