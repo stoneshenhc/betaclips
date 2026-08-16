@@ -99,7 +99,8 @@ class SheetsClient:
 
         raise SheetNotFoundError(spreadsheet_id, sheet_name)
 
-    def _bold_and_note(self, sheet_id: int, note: str) -> dict:
+    @staticmethod
+    def _bold_and_note(sheet_id: int, note: str) -> dict:
         body = {
             'requests': [
                 {
