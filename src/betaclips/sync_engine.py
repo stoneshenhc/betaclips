@@ -1,7 +1,7 @@
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.sync_job import SyncJob
-from betaclips.run_result import RunResult
+from betaclips.results.run_result import RunResult
 from betaclips.exceptions import PartialWriteError, ExcessiveWriteError
 
 

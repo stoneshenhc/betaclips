@@ -1,6 +1,5 @@
 import tomllib
 import json
-from dataclasses import asdict
 
 from dotenv import load_dotenv
 
@@ -11,10 +10,11 @@ from betaclips.validation.results import JobValidationResult
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.clients.drive_client import DriveClient
+from betaclips.results.run_result import RunResult
+from betaclips.results.reporting import log_result, get_report
 from betaclips.sync_job import SyncJob
 from betaclips.sync_engine import SyncEngine
 from betaclips.exceptions import JobError
-from betaclips.run_result import RunResult
 
 
 def main() -> None:
@@ -40,6 +40,8 @@ def main() -> None:
         )
         for job in jobs
     ]
+    results = []
+
     for sync_job in sync_jobs:
         validation = validation_engine.validate(sync_job)
         print(validation.describe(sync_job.name))
@@ -47,21 +49,15 @@ def main() -> None:
         for sync_job in sync_jobs:
             try:
                 result = sync_engine.execute(sync_job)
-                log_result(result)
             except JobError as error:
                 result = RunResult(
                     sync_job.name, 'failure', None, None, str(error)
                 )
-                log_result(result)
+            log_result(result)
+            results.append(result)
     finally:
         sync_engine.close()
-
-
-# TODO: Move into its own module
-def log_result(result: RunResult, log_path: str = 'jobresults.jsonl') -> None:
-    result_dict = asdict(result)
-    with open(log_path, 'a') as f:
-        f.write(json.dumps(result_dict, default=str) + '\n')
+    print('\n' + get_report(results))
 
 def validate_timeout(value) -> int:
     timeout = int(value)
@@ -72,4 +68,3 @@ def validate_timeout(value) -> int:
         )
     else:
         return timeout
-

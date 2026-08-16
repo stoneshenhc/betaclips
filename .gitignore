@@ -19,4 +19,4 @@ credentials/
 config/jobs.toml
 
 # Local logging
-jobresults.jsonl
+logs/
