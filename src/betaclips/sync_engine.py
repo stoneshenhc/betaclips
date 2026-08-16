@@ -27,7 +27,7 @@ class SyncEngine:
             raise ExcessiveWriteError(
                 len(df) + 1, len(df.columns), metadata[0], metadata[1]
             )
-        return RunResult(job.name, 'success', metadata[0], metadata[1])
+        return RunResult(job.name, True, metadata[0], metadata[1])
 
     def close(self):
         self.sf_client.close()

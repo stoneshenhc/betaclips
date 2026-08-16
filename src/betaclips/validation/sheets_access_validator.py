@@ -1,5 +1,5 @@
 from betaclips.clients.drive_client import DriveClient
-from betaclips.validation.results import ValidationResult
+from betaclips.results.validation_results import ValidationResult
 
 
 class SheetsAccessValidator:
@@ -15,13 +15,15 @@ class SheetsAccessValidator:
             if email == 'writer@betaclips.iam.gserviceaccount.com':
                 role = perm.get('role', '')
                 if role in self.VALID_ROLES:
-                    return ValidationResult(True, None)
+                    return ValidationResult('Sheet access', True, None)
                 else:
                     return ValidationResult(
+                        'Sheet access',
                         False,
                         f"Current role is {role}, but needs at least writer.",
                     )
         return ValidationResult(
+            'Sheet access',
             False,
             "Spreadsheet file does not exist or is not shared with "
             "service account",

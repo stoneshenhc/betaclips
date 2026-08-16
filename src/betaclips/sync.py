@@ -6,7 +6,6 @@ from dotenv import load_dotenv
 from betaclips.validation.query_validator import QueryValidator
 from betaclips.validation.sheets_access_validator import SheetsAccessValidator
 from betaclips.validation.validation_engine import ValidationEngine
-from betaclips.validation.results import JobValidationResult
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.clients.drive_client import DriveClient
@@ -40,24 +39,30 @@ def main() -> None:
         )
         for job in jobs
     ]
-    results = []
+    val_results = []
+    run_results = []
 
     for sync_job in sync_jobs:
         validation = validation_engine.validate(sync_job)
-        print(validation.describe(sync_job.name))
+        val_results.append(validation)
+    print(get_report('validation', val_results))
     try:
         for sync_job in sync_jobs:
             try:
                 result = sync_engine.execute(sync_job)
             except JobError as error:
                 result = RunResult(
-                    sync_job.name, 'failure', None, None, str(error)
+                    sync_job.name,
+                    False,
+                    None,
+                    None,
+                    str(error),
                 )
             log_result(result)
-            results.append(result)
+            run_results.append(result)
     finally:
         sync_engine.close()
-    print('\n' + get_report(results))
+    print('\n' + get_report('run', run_results))
 
 def validate_timeout(value) -> int:
     timeout = int(value)

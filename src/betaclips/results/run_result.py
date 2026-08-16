@@ -4,8 +4,8 @@ from datetime import datetime, timezone
 
 @dataclass
 class RunResult:
-    name: str
-    status: str
+    job_name: str
+    success: bool
     rows: int
     cols: int
     error: str | None = None
