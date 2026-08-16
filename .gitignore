@@ -15,8 +15,8 @@ wheels/
 # Credentials
 credentials/
 
-# Job configuruations
-config/
+# Job configuruation
+config/jobs.toml
 
 # Local logging
 jobresults.jsonl

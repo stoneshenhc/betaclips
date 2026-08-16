@@ -32,22 +32,6 @@ For Google, follow the [official documentation](https://developers.google.com/wo
 ### Usage
 Run `uv sync` at the root of the cloned repo to finish installation.
 
-And then create a new `config/jobs.toml` file at the root of the project where you will define your jobs as follows:
-```toml
-timeout = 120
-
-[[jobs]]
-name = "name for job 1"
-sql = """
-SELECT *
-FROM sometable
-LIMIT 100"""
-spreadsheetid = "longstring"
-sheetname = "Sheet1"
-enabled = True
-
-[[jobs]]
-# same for every job you want...
-```
+And then create a new `config/jobs.toml` file which defines the actual jobs to be synced. See the example file in that directory for what the parameters look like.
 
 Finally doing a `uv run betaclips` will reach out to Snowflake and do a one time sync of all queries into Google Sheets

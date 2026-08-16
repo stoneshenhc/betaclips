@@ -1,0 +1,23 @@
+timeout = 300
+
+[[jobs]]
+name = "daily sales"
+sql = """
+SELECT sales_date, sum(dollars) as sales_amt
+FROM sales
+GROUP BY 1
+ORDER BY 1 DESC"""
+spreadsheet_id = "longstring"
+sheet_name = "Sheet1"
+enabled = true
+
+[[jobs]]
+name = "list users"
+sql = """
+SELECT id
+FROM users
+LIMIT 100
+"""
+spreadsheet_id = "longstring"
+sheet_name = "Sheet2"
+enabled = true
