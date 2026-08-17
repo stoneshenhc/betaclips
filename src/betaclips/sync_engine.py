@@ -1,8 +1,12 @@
+import logging
+
 from betaclips.clients.snowflake_client import SnowflakeClient
 from betaclips.clients.sheets_client import SheetsClient
 from betaclips.sync_job import SyncJob
 from betaclips.results.run_result import RunResult
 from betaclips.exceptions import PartialWriteError, ExcessiveWriteError
+
+logger = logging.getLogger(__name__)
 
 
 class SyncEngine:
@@ -27,6 +31,7 @@ class SyncEngine:
             raise ExcessiveWriteError(
                 len(df) + 1, len(df.columns), metadata[0], metadata[1]
             )
+        logger.info("Job completed - name=%s", job.name)
         return RunResult(job.name, True, metadata[0], metadata[1])
 
     def close(self):

@@ -1,3 +1,4 @@
+import logging
 import tomllib
 import json
 
@@ -15,11 +16,15 @@ from betaclips.sync_job import SyncJob
 from betaclips.sync_engine import SyncEngine
 from betaclips.exceptions import JobError
 
+logger = logging.getLogger(__name__)
+
 
 def main() -> None:
+    logging.basicConfig(level=logging.INFO)
     load_dotenv()
     with open("./config/jobs.toml", "rb") as f:
         config = tomllib.load(f)
+    logger.info("Snowflake credentials and job configs loaded")
     timeout = validate_timeout(config.get('timeout', None))
 
     sf_client = SnowflakeClient(timeout)
@@ -42,10 +47,13 @@ def main() -> None:
     val_results = []
     run_results = []
 
+    logger.info("Validations starting")
     for sync_job in sync_jobs:
         validation = validation_engine.validate(sync_job)
         val_results.append(validation)
-    print(get_report('validation', val_results))
+    #print(get_report('validation', val_results))
+    logger.info("Validation finished")
+    logger.info("Sync starting")
     try:
         for sync_job in sync_jobs:
             try:
@@ -58,11 +66,17 @@ def main() -> None:
                     None,
                     str(error),
                 )
+                logger.error(
+                    "Job failed - name=%s: %s",
+                    sync_job.name, 
+                    error,
+                )
             log_result(result)
             run_results.append(result)
     finally:
         sync_engine.close()
-    print('\n' + get_report('run', run_results))
+    #print('\n' + get_report('run', run_results))
+    logger.info("Sync finished")
 
 def validate_timeout(value) -> int:
     timeout = int(value)

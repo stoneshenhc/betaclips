@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, timezone
 
 import pandas as pd
@@ -12,6 +13,8 @@ from betaclips.exceptions import (
     SpreadsheetPermissionError,
     SheetWriteError,
 )
+
+logger = logging.getLogger(__name__)
 
 
 class SheetsClient:
@@ -38,8 +41,8 @@ class SheetsClient:
         values = [dataframe.columns.tolist()] + dataframe.values.tolist()
         check_sheet_limits(values)
         batches = batch_values(values)
-        row_counter = 1
-        updated_rows = updated_cols = batch_counter = 0
+        row_counter = batch_counter = 1
+        updated_rows = updated_cols = 0
 
         self.clear(spreadsheet_id, sheet_name)
         for batch in batches:
@@ -56,6 +59,14 @@ class SheetsClient:
                         spreadsheet_id, sheet_name, error._get_reason()
                     )
                 raise error
+            logger.info(
+                "Google Sheet write completed, batch %s of %s"
+                " - spreadsheet_id=%s sheet_name=%s",
+                batch_counter,
+                len(batches),
+                spreadsheet_id,
+                sheet_name,
+            )
             updated_rows += result.get('updatedRows', 0)
             updated_cols = max(updated_cols, result.get('updatedColumns', 0))
             batch_counter += 1
@@ -66,7 +77,12 @@ class SheetsClient:
             spreadsheetId=spreadsheet_id,
             body=self._bold_and_note(sheet_id, f"Last synced: {now_utc} UTC"),
         ).execute()
-
+        logger.info(
+            "Google Sheet column headers bolded and time note added"
+            " - spreadsheet_id=%s sheet_name=%s",
+            spreadsheet_id,
+            sheet_name,
+        )
         return (updated_rows, updated_cols, batch_counter)
 
     def clear(self, spreadsheet_id: str, sheet_name: str) -> None:
@@ -80,6 +96,11 @@ class SheetsClient:
             if int(error.resp.status) == 403:
                 raise SpreadsheetPermissionError(spreadsheet_id)
             raise error
+        logger.info(
+            'Google Sheet tab cleared - spreadsheet_id=%s sheet_name=%s',
+            spreadsheet_id,
+            sheet_name,
+        )
 
     def _get_sheet_id(self, spreadsheet_id: str, sheet_name: str) -> int:
         try:

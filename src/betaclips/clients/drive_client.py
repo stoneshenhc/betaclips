@@ -1,6 +1,10 @@
+import logging
+
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+logger = logging.getLogger(__name__)
 
 
 class DriveClient:
@@ -24,3 +28,7 @@ class DriveClient:
         except HttpError as error:
             if int(error.resp.status) == 404:
                 return []
+        logger.info(
+            "Google Drive permissions retrieved - file_id=%s",
+            file_id,
+        )

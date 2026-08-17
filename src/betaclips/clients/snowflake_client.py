@@ -1,3 +1,4 @@
+import logging
 import os
 
 import snowflake.connector as sc
@@ -10,6 +11,8 @@ from betaclips.exceptions import (
     SQLExecutionError,
 )
 from betaclips.constants import MAX_CELLS, MAX_COLUMNS
+
+logger = logging.getLogger(__name__)
 
 
 class SnowflakeClient:
@@ -36,11 +39,19 @@ class SnowflakeClient:
             'session_parameters': session_params
         }
         self.conn = sc.connect(**conn_params)
+        logger.info(
+            'Snowflake connection established: %s', 
+            self.conn.session_id,
+        )
 
     def query(self, sql: str) -> pd.DataFrame:
         cursor = self.conn.cursor()
         try:
             cursor.execute(sql)
+            logger.info(
+                'SQL statement successfully executed in session %s',
+                self.conn.session_id,
+            )
             self._check_result_shape(cursor)
             return cursor.fetch_pandas_all()
         except sc.errors.ProgrammingError as error:
@@ -54,8 +65,10 @@ class SnowflakeClient:
     def _check_result_shape(cursor: SnowflakeCursor) -> None:
         rows = cursor.rowcount
         columns = len(cursor.description)
+        logger.info('Query results have %s rows %s columns', rows, columns)
         if rows * columns > MAX_CELLS or columns > MAX_COLUMNS:
             raise QueryTooLargeError(rows, columns)
 
     def close(self) -> None:
         self.conn.close()
+        logger.info('Snowflake connection closed: %s', self.conn.session_id)
