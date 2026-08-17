@@ -24,7 +24,6 @@ class DriveClient:
                 fileId=file_id,
                 fields='permissions(emailAddress, role)',
             ).execute()
-            return response.get('permissions', [])
         except HttpError as error:
             if int(error.resp.status) == 404:
                 return []
@@ -32,3 +31,4 @@ class DriveClient:
             "Google Drive permissions retrieved - file_id=%s",
             file_id,
         )
+        return response.get('permissions', [])

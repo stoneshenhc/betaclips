@@ -9,6 +9,9 @@ from betaclips.results.validation_results import JobValidationResult
 RESULTS_DIR_PATH = 'logs'
 RESULTS_FILENAME = 'jobresults.jsonl'
 
+def create_log_dir(dir_path) -> None:
+    Path(dir_path).mkdir(parents=True, exist_ok=True)
+
 def log_result(
     result: RunResult,
     dir_path: str = RESULTS_DIR_PATH,
@@ -19,7 +22,7 @@ def log_result(
         with open(f"{dir_path}/{filename}", 'a') as f:
             f.write(json.dumps(result_dict, default=str) + '\n')
     except FileNotFoundError as error:
-        Path(dir_path).mkdir(parents=True, exist_ok=True)
+        create_log_dir(dir_path)
         with open(f"{dir_path}/{filename}", 'a') as f:
             f.write(json.dumps(result_dict, default=str) + '\n')
 

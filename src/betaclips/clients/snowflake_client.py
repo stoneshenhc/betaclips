@@ -1,5 +1,4 @@
 import logging
-import os
 
 import snowflake.connector as sc
 import pandas as pd
@@ -16,47 +15,34 @@ logger = logging.getLogger(__name__)
 
 
 class SnowflakeClient:
-    def __init__(self, statement_timeout: int | None = None):
-        self.statement_timeout = statement_timeout
-        session_params = {}
-        if statement_timeout is not None:
-            session_params['STATEMENT_TIMEOUT_IN_SECONDS'] = (
-                self.statement_timeout
-            )
-        conn_params = {
-            'account': os.environ['SNOWFLAKE_ACCOUNT'],
-            'user': os.environ['SNOWFLAKE_USER'],
-            'authenticator': 'SNOWFLAKE_JWT',
-            'warehouse': os.environ['SNOWFLAKE_WAREHOUSE'],
-            'database': os.environ['SNOWFLAKE_DATABASE'],
-            'schema': os.environ['SNOWFLAKE_SCHEMA'],
-            'role': os.environ['SNOWFLAKE_ROLE'],
-            'secondary_roles': os.environ['SNOWFLAKE_SECONDARY_ROLES'],
-            'private_key_file': os.environ['SNOWFLAKE_PRIVATE_KEY_PATH'],
-            'private_key_file_pwd': (
-                os.environ['SNOWFLAKE_PRIVATE_KEY_PASSPHRASE']
-            ),
-            'session_parameters': session_params
-        }
-        self.conn = sc.connect(**conn_params)
+    def __init__(self, **connect_kwargs):
+        self.connect_kwargs = connect_kwargs
+        self.conn = None
+
+    def connect(self) -> None:
+        self.conn = sc.connect(**self.connect_kwargs)
         logger.info(
-            'Snowflake connection established: %s', 
+            "Snowflake connection established: %s", 
             self.conn.session_id,
         )
 
     def query(self, sql: str) -> pd.DataFrame:
-        cursor = self.conn.cursor()
+        cursor = self.conn.cursor() 
         try:
+            logger.debug("Attempting to execute SQL statement: %s", sql)
             cursor.execute(sql)
             logger.info(
-                'SQL statement successfully executed in session %s',
+                "SQL statement successfully executed in session %s",
                 self.conn.session_id,
             )
             self._check_result_shape(cursor)
             return cursor.fetch_pandas_all()
         except sc.errors.ProgrammingError as error:
             if error.errno == 630:
-                raise QueryTimeoutError(self.statement_timeout)
+                timeout = self.connect_kwargs['session_parameters'][
+                    'STATEMENT_TIMEOUT_IN_SECONDS'
+                ]
+                raise QueryTimeoutError(timeout)
             raise SQLExecutionError(error.msg)
         finally:
             cursor.close()
@@ -65,10 +51,10 @@ class SnowflakeClient:
     def _check_result_shape(cursor: SnowflakeCursor) -> None:
         rows = cursor.rowcount
         columns = len(cursor.description)
-        logger.info('Query results have %s rows %s columns', rows, columns)
+        logger.info("Query results have %s rows %s columns", rows, columns)
         if rows * columns > MAX_CELLS or columns > MAX_COLUMNS:
             raise QueryTooLargeError(rows, columns)
 
     def close(self) -> None:
         self.conn.close()
-        logger.info('Snowflake connection closed: %s', self.conn.session_id)
+        logger.info("Snowflake connection closed: %s", self.conn.session_id)

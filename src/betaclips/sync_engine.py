@@ -11,12 +11,16 @@ logger = logging.getLogger(__name__)
 
 class SyncEngine:
     def __init__(
-        self, sf_client: SnowflakeClient, sheets_client: SheetsClient
+        self,
+        sf_client: SnowflakeClient,
+        sheets_client: SheetsClient,
     ):
         self.sf_client = sf_client
         self.sheets_client = sheets_client
 
     def execute(self, job: SyncJob) -> None:
+        if self.sf_client.conn is None or self.sf_client.conn.is_closed():
+            self.sf_client.connect()
         df = self.sf_client.query(job.query)
         metadata = self.sheets_client.write(
             job.spreadsheet_id,

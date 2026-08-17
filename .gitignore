@@ -20,3 +20,4 @@ config/jobs.toml
 
 # Local logging
 logs/
+app.log

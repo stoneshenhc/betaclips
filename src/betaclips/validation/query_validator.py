@@ -9,6 +9,8 @@ class QueryValidator:
         self.sf_client = sf_client
 
     def validate(self, sql: str) -> ValidationResult:
+        if self.sf_client.conn is None or self.sf_client.conn.is_closed():
+            self.sf_client.connect()
         cursor = self.sf_client.conn.cursor()
         try:
             cursor.describe(sql)

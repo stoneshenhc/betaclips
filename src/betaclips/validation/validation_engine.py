@@ -17,3 +17,6 @@ class ValidationEngine:
         query_check = self.query_validator.validate(job.query)
         access_check = self.access_validator.validate(job.spreadsheet_id)
         return JobValidationResult(job.name, [query_check, access_check])
+
+    def close(self):
+        self.query_validator.close()
