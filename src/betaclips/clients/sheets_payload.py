@@ -10,7 +10,11 @@ logger = logging.getLogger(__name__)
 def estimated_size(values: list[list]) -> int:
     """Size in bytes of serialized values that would be sent in request
     to Sheets API"""
-    return len(json.dumps({'values': values}).encode('utf-8'))
+    payload = json.dumps(
+        {'values': values},
+        separators=(',',':'),
+    ).encode('utf-8')
+    return len(payload)
 
 def column_count(values: list[list]) -> int:
     return len(values[0])
