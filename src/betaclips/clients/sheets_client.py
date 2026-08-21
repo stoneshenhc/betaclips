@@ -19,15 +19,18 @@ logger = logging.getLogger(__name__)
 
 class SheetsClient:
     SCOPES = ['https://www.googleapis.com/auth/spreadsheets']
-    SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
     DATETIME_FORMAT = '%Y-%m-%d %H:%M:%S'
 
-    def __init__(self):
+    def __init__(self, service):
+        self.service = service
+
+    @classmethod
+    def from_service_account(cls, file_path: str):
         creds = Credentials.from_service_account_file(
-            self.SERVICE_ACCOUNT_FILE,
-            scopes=self.SCOPES,
+            file_path,
+            scopes=cls.SCOPES,
         )
-        self.service = build('sheets', 'v4', credentials=creds)
+        return cls(build('sheets', 'v4', credentials=creds))
 
     def write(
         self,

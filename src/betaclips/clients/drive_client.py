@@ -9,14 +9,17 @@ logger = logging.getLogger(__name__)
 
 class DriveClient:
     SCOPES = ['https://www.googleapis.com/auth/drive.metadata.readonly']
-    SERVICE_ACCOUNT_FILE = './credentials/betaclips-service-account.json'
 
-    def __init__(self):
+    def __init__(self, service):
+        self.service = service
+
+    @classmethod
+    def from_service_account(cls, file_path):
         creds = Credentials.from_service_account_file(
-            self.SERVICE_ACCOUNT_FILE,
-            scopes=self.SCOPES,
+            file_path,
+            scopes=cls.SCOPES,
         )
-        self.service = build('drive', 'v3', credentials=creds)
+        return cls(build('drive', 'v3', credentials=creds))
 
     def get_permissions(self, file_id: str) -> list:
         try:

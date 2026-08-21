@@ -17,6 +17,8 @@ from betaclips.sync_job import SyncJob
 from betaclips.sync_engine import SyncEngine
 from betaclips.exceptions import JobError
 
+SERVICE_ACCOUNT_FILEPATH = './credentials/betaclips-service-account.json'
+
 logger = logging.getLogger(__name__)
 
 
@@ -55,8 +57,12 @@ def main() -> None:
     }
 
     sf_client = SnowflakeClient(**conn_params)
-    sheets_client = SheetsClient()
-    drive_client = DriveClient()
+    sheets_client = SheetsClient.from_service_account(
+        SERVICE_ACCOUNT_FILEPATH
+    )
+    drive_client = DriveClient.from_service_account(
+        SERVICE_ACCOUNT_FILEPATH
+    )
     query_validator = QueryValidator(sf_client)
     sheets_validator = SheetsAccessValidator(drive_client)
     validation_engine = ValidationEngine(query_validator, sheets_validator)
