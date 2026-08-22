@@ -16,52 +16,40 @@ from betaclips.results.reporting import log_result, get_report
 from betaclips.sync_job import SyncJob
 from betaclips.sync_engine import SyncEngine
 from betaclips.exceptions import JobError
-
-SERVICE_ACCOUNT_FILEPATH = './credentials/betaclips-service-account.json'
+from betaclips.config import (
+    CONFIG_FILE,
+    LOG_FILE,
+    RUN_RESULTS_FILE,
+    SNOWFLAKE_PKEY_FILE,
+    GOOGLE_SERVICE_ACCOUNT_JSON,
+)
 
 logger = logging.getLogger(__name__)
 
-
+# TODO: Init to create all filepaths for files
 def main() -> None:
     logging.basicConfig(
-        filename='app.log',
+        filename=LOG_FILE,
         encoding='utf8',
         format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
         level=logging.INFO,
     )
-    load_dotenv()
-    with open("./config/jobs.toml", "rb") as f:
+
+    with open(CONFIG_FILE, "rb") as f:
         config = tomllib.load(f)
-    timeout = config.get('timeout', None)
     logger.info("Snowflake credentials and job configs loaded")
 
-    session_params = {}
-    if timeout is not None:
-        session_params[
-            'STATEMENT_TIMEOUT_IN_SECONDS'
-        ] = validate_timeout(timeout)
-    conn_params = {
-        'account': os.environ['SNOWFLAKE_ACCOUNT'],
-        'user': os.environ['SNOWFLAKE_USER'],
-        'authenticator': 'SNOWFLAKE_JWT',
-        'warehouse': os.environ['SNOWFLAKE_WAREHOUSE'],
-        'database': os.environ['SNOWFLAKE_DATABASE'],
-        'schema': os.environ['SNOWFLAKE_SCHEMA'],
-        'role': os.environ['SNOWFLAKE_ROLE'],
-        'secondary_roles': os.environ['SNOWFLAKE_SECONDARY_ROLES'],
-        'private_key_file': os.environ['SNOWFLAKE_PRIVATE_KEY_PATH'],
-        'private_key_file_pwd': (
-            os.environ['SNOWFLAKE_PRIVATE_KEY_PASSPHRASE']
-        ),
-        'session_parameters': session_params
-    }
+    conn_params = config['snowflake']
+    conn_params['private_key_file'] = SNOWFLAKE_PKEY_FILE
+    if 'private_key_file_pwd' not in conn_params:
+        conn_params['private_key_file_pwd'] = get_passphrase(config)
 
     sf_client = SnowflakeClient(**conn_params)
     sheets_client = SheetsClient.from_service_account(
-        SERVICE_ACCOUNT_FILEPATH
+        GOOGLE_SERVICE_ACCOUNT_JSON
     )
     drive_client = DriveClient.from_service_account(
-        SERVICE_ACCOUNT_FILEPATH
+        GOOGLE_SERVICE_ACCOUNT_JSON
     )
     query_validator = QueryValidator(sf_client)
     sheets_validator = SheetsAccessValidator(drive_client)
@@ -106,13 +94,14 @@ def main() -> None:
                     sync_job.name, 
                     error,
                 )
-            log_result(result)
+            log_result(result, RUN_RESULTS_FILE)
             run_results.append(result)
     finally:
         sync_engine.close()
     print('\n' + get_report('run', run_results))
     logger.info("Sync finished")
 
+# TODO: remove this?
 def validate_timeout(value) -> int:
     timeout = int(value)
     if not 0 <= timeout <= 86400:
@@ -122,3 +111,8 @@ def validate_timeout(value) -> int:
         )
     else:
         return timeout
+
+# TODO: find antoher place for this
+def get_passphrase(config: dict) -> str:
+    env_var_name = config['snowflake'].get('private_key_file_pwd_env')
+    return os.environ(env_var) if env_var_name else None

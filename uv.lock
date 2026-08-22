@@ -33,6 +33,7 @@ source = { editable = "." }
 dependencies = [
     { name = "google-api-python-client" },
     { name = "google-auth-httplib2" },
+    { name = "platformdirs" },
     { name = "python-dotenv" },
     { name = "snowflake-connector-python", extra = ["pandas"] },
 ]
@@ -47,6 +48,7 @@ dev = [
 requires-dist = [
     { name = "google-api-python-client", specifier = ">=2.198.0" },
     { name = "google-auth-httplib2", specifier = ">=0.4.1" },
+    { name = "platformdirs", specifier = ">=4.11.1" },
     { name = "python-dotenv", specifier = ">=1.2.2" },
     { name = "snowflake-connector-python", extras = ["pandas"], specifier = ">=4.7.2" },
 ]

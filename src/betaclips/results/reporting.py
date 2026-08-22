@@ -6,24 +6,22 @@ from betaclips.results.run_result import RunResult
 from betaclips.results.validation_results import JobValidationResult
 
 
-RESULTS_DIR_PATH = 'logs'
-RESULTS_FILENAME = 'jobresults.jsonl'
-
 def create_log_dir(dir_path) -> None:
     Path(dir_path).mkdir(parents=True, exist_ok=True)
 
 def log_result(
     result: RunResult,
-    dir_path: str = RESULTS_DIR_PATH,
-    filename: str = RESULTS_FILENAME,
+    file_path: Path,
     ) -> None:
     result_dict = asdict(result)
     try:
-        with open(f"{dir_path}/{filename}", 'a') as f:
+        with open(file_path, 'a') as f:
             f.write(json.dumps(result_dict, default=str) + '\n')
     except FileNotFoundError as error:
-        create_log_dir(dir_path)
-        with open(f"{dir_path}/{filename}", 'a') as f:
+        dir_path = file_path.parent
+        if not dir_path.is_dir():
+            create_log_dir(dir_path)
+        with open(file_path, 'a') as f:
             f.write(json.dumps(result_dict, default=str) + '\n')
 
 def get_report(
@@ -36,11 +34,15 @@ def get_report(
     total_runs = len(results)
     error_strs = [f"{res.job_name} - {res.error}" for res in results if not res.success]
     error_str = '\n'.join(error_strs)
-    return (
+    full_report = (
         f"\033[1m{heading} report:\033[0m\n"
         f"{good_runs}/{total_runs} {heading}s succeeded.\n"
         f"{bad_runs}/{total_runs} {heading}s failed.\n"
-        f"Names of failed {heading}s: {bad_names}\n"
-        f"\nFailed {heading}s errors:\n"
-        f"{error_str}"
     )
+    if bad_runs > 0:
+        full_report += (
+            f"Names of failed {heading}s: {bad_names}\n"
+            f"\nFailed {heading}s errors:\n"
+            f"{error_str}"
+        )
+    return full_report
