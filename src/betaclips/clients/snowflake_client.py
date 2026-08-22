@@ -39,9 +39,12 @@ class SnowflakeClient:
             return cursor.fetch_pandas_all()
         except sc.errors.ProgrammingError as error:
             if error.errno == 630:
-                timeout = self.connect_kwargs['session_parameters'][
-                    'STATEMENT_TIMEOUT_IN_SECONDS'
-                ]
+                timeout = self.connect_kwargs.get(
+                    'session_parameters', 
+                    {},
+                ).get(
+                    'statement_timeout_in_seconds'
+                )
                 raise QueryTimeoutError(timeout)
             raise SQLExecutionError(error.msg)
         finally:

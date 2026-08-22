@@ -42,7 +42,7 @@ def get_report(
     if bad_runs > 0:
         full_report += (
             f"Names of failed {heading}s: {bad_names}\n"
-            f"\nFailed {heading}s errors:\n"
+            f"Failed {heading}s errors:\n"
             f"{error_str}"
         )
     return full_report
