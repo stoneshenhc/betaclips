@@ -1,7 +1,7 @@
 import logging
 from argparse import ArgumentParser
 
-from betaclips.config import init_dirs
+from betaclips.config import LOG_FILE, init_dirs
 from betaclips.sync import sync_jobs, validate_jobs
 from betaclips.results.reporting import get_report
 
@@ -52,8 +52,7 @@ def main() -> None:
     )
     parser_sync.set_defaults(func=sync)
     
-    args = parser.parse_args('sync -j list-schedules'.split())
-    print(args)
+    args = parser.parse_args()
     args.func(args)
 
 def init(args):
