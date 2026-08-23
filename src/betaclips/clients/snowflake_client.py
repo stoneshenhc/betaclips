@@ -59,5 +59,6 @@ class SnowflakeClient:
             raise QueryTooLargeError(rows, columns)
 
     def close(self) -> None:
-        self.conn.close()
-        logger.info("Snowflake connection closed: %s", self.conn.session_id)
+        if self.conn is not None:
+            self.conn.close()
+            logger.info("Snowflake connection closed: %s", self.conn.session_id)

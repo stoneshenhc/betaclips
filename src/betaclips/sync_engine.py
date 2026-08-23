@@ -21,7 +21,7 @@ class SyncEngine:
     def execute(self, job: SyncJob) -> None:
         if self.sf_client.conn is None or self.sf_client.conn.is_closed():
             self.sf_client.connect()
-        df = self.sf_client.query(job.query)
+        df = self.sf_client.query(job.sql)
         metadata = self.sheets_client.write(
             job.spreadsheet_id,
             job.sheet_name,
