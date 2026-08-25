@@ -22,6 +22,40 @@ LOG_FILE = DATA_DIR / 'app.log'
 RUN_RESULTS_FILE = DATA_DIR / 'run_results.jsonl'
 CREDENTIALS_DIR = CONFIG_DIR / 'credentials'
 GOOGLE_SERVICE_ACCOUNT_JSON = CREDENTIALS_DIR / 'betaclips-service-account.json'
+CONFIG_FILE_TEMPLATE = '''
+[snowflake]
+account = "<account-identifier>"
+user = "<username>"
+warehouse = "<warehouse>"
+database = "<database>"
+schema = "<schema>"
+role = "<role>"
+secondary_roles = "<none-or-role>"
+private_key_file = "<path-to-private-key>"
+private_key_file_env = "<env-var-for-private-key-passphrase>"
+session_parameters.statement_timeout_in_seconds = <number-seconds>
+
+[[jobs]]
+name = "job1"
+sql = """
+SELECT id
+FROM users
+LIMIT 5000"""
+spreadsheet_id = "<spreadsheet-id>"
+sheet_name = "Sheet1"
+enabled = true
+
+[[jobs]]
+name = "job2"
+sql = """
+SELECT id, amount
+FROM orders
+LIMIT 100
+"""
+spreadsheet_id = "<spreadsheet-id>"
+sheet_name = "Sheet2"
+enabled = true
+'''
 
 def init_dirs() -> InitResult:
     config_dir_exists = CONFIG_DIR.exists()
