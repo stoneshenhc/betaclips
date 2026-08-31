@@ -1,37 +1,29 @@
 # betaclips
-Simple tool for syncing analytical queries from data warehouses to Google Sheets for last mile analysis. Name inspired by Dataclips functionality in Heroku.
+Simple CLI program for syncing analytical queries from data warehouses to Google Sheets for last mile analysis. Name inspired by Dataclips functionality in Heroku.
 
 ## Overview
-This is currently **under active development** and is not ready for real world usage. Snowflake is the only supported data warehouse for now.
-
-Betaclips allows you to define a list of jobs by specifying for each job:
-- The SQL query to be run
-- The Google Sheet file and tab for the result to land in
-
-and will sync the query into the sheet. As simple as that.
+Betaclips takes a list of jobs, each specifying a database query and a Google Sheet destination, and runs them. Column headers are automatically bolded on the Google Sheet side with a note in A1 specifying the last sync time. Note that you are on the hook for the actual scheduling of these jobs if you want them to run automatically.
 
 ## Installation
-For now while this is under initial development, this is a janky dev-orientated process. Make sure you have `uv` installed first and then clone this repo locally.
+[Coming soon using git-based tag-pinned install]
 
 ### Authentication
-You'll need to set up credentials on the Snowflake side and the Google side.
+After installation, make sure to run `betaclips init` to create all the necessary configuration directories and a starting config template.
 
-For Snowflake, follow the [official documentation](https://docs.snowflake.com/en/user-guide/key-pair-auth) on configuring key pair auth for your account. Move both the public key file and private key file inside a `credentials/` folder at the root of the project.
+Your Snowflake connection and auth method are defined within the main config toml file under the heading `[snowflake]`. The starting template is based off of key-pair authentication, but any method supported by using the connection login parameters can be used. You can view the [Snowflake documentation page here](https://docs.snowflake.com/en/developer-guide/python-connector/python-connector-connect) for more detailed information.
 
-Also create a `.env` at the root of the project to hold your connection settings for Snowflake, e.g.:
-```env
-SNOWFLAKE_ACCOUNT=ACCOUNTID
-SNOWFLAKE_USER=USERNAME
-SNOWFLAKE_WAREHOUSE=WAREHOUSE
-SNOWFLAKE_PRIVATE_KEY_PATH=./credentials/rsa_key.p8
-SNOWFLAKE_PRIVATE_KEY_PASSPHRASE=PASSPHRASE
+For Google, follow the [official documentation](https://developers.google.com/workspace/guides/create-credentials#service-account) to create a service account, an associated key, and download the json. Rename the json file `betaclips-service-account.json` and put it into the specific credentials folder that was created by the `betaclips init` command (it can be rerun to echo back where all the folder locations are). Note that you will have to share any spreadsheet you want betaclips to sync into with the service account you just created prior.
+
+## Usage
+The following commands are supported:
+
+```
+betaclips init                                  creates all necessary config and log folders and templates
+betaclips validate -j --job-names ...           smoke screen tests all/specific jobs
+betaclips sync -j --job-names ...               runs the sync for all/specific jobs
 ```
 
-For Google, follow the [official documentation](https://developers.google.com/workspace/guides/create-credentials#service-account) to create a service account and an associated key. Take the `credentials.json` file and put it into the `credentials/` folder that was created earlier. Note that you will have to share any spreadsheet you want betaclips to sync into with the service account you just created prior.
+If not job names are specified by `validate` or `sync` then all enabled jobs will be in scope. Jobs are defined in the `config.toml` that is generated from the `init` command. The initial template lays out all the supported parameters of a given job.
 
-### Usage
-Run `uv sync` at the root of the cloned repo to finish installation.
-
-And then create a new `config/jobs.toml` file which defines the actual jobs to be synced. See the example file in that directory for what the parameters look like.
-
-Finally doing a `uv run betaclips` will reach out to Snowflake and do a one time sync of all queries into Google Sheets
+## Final words
+Thanks and happy syncing!
