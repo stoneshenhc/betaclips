@@ -1,5 +1,5 @@
 # betaclips
-Simple CLI program for syncing analytical queries from Snowflake to Google Sheets for last mile analysis.
+A small and simple CLI program for syncing analytical queries from Snowflake to Google Sheets for last mile analysis.
 
 ## Installation
 One of:
@@ -48,6 +48,3 @@ In addition, betaclips supports:
 - Environment variable indirection in snowflake config parameters using `_env` suffix for keys
 
 Note that you are on the hook for scheduling or distributing these syncs.
-
-## Final words
-Thanks and happy syncing!
