@@ -2,7 +2,11 @@
 Simple CLI program for syncing analytical queries from Snowflake to Google Sheets for last mile analysis.
 
 ## Installation
-[Coming soon using git-based tag-pinned install]
+One of:
+```
+pipx install "git+https://github.com/stoneshenhc/betaclips.git@v0.1.0"
+uv tool install "git+https://github.com/stoneshenhc/betaclips.git@v0.1.0"
+```
 
 ### Authentication
 After installation, make sure to run `betaclips init` to create all the necessary configuration directories and a starting config template.
@@ -43,8 +47,7 @@ In addition, betaclips supports:
 - Chunks large query result sets into 2MB batch writes to Sheets for performance
 - Environment variable indirection in snowflake config parameters using `_env` suffix for keys
 
-You are on the hook for scheduling or distributing these syncs.
+Note that you are on the hook for scheduling or distributing these syncs.
 
 ## Final words
 Thanks and happy syncing!
-

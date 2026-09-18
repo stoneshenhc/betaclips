@@ -39,6 +39,7 @@ secondary_roles = "<none-or-role>"
 private_key_file = "<path-to-private-key>"
 private_key_file_env = "<env-var-for-private-key-passphrase>"
 session_parameters.statement_timeout_in_seconds = <number-seconds>
+validate_default_parameters = true
 
 [[jobs]]
 name = "job1"
