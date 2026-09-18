@@ -6,6 +6,11 @@ from pathlib import Path
 from platformdirs import user_config_dir, user_data_dir
 
 from betaclips.results.init_result import InitResult
+from betaclips.exceptions import (
+    ConfigNotFoundError,
+    ConfigParseError,
+    MissingEnvVarError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -82,8 +87,13 @@ def init_dirs() -> InitResult:
     )
 
 def load_config() -> dict:
-    with open(CONFIG_FILE, 'rb') as f:
-        config = tomllib.load(f)
+    if not CONFIG_FILE.exists():
+        raise ConfigNotFoundError(CONFIG_FILE)
+    try:
+        with open(CONFIG_FILE, 'rb') as f:
+            config = tomllib.load(f)
+    except tomllib.TOMLDecodeError as e:
+        raise ConfigParseError(str(e))
     logger.info("Connection and job configuration loaded.")
     return config
 
@@ -91,5 +101,8 @@ def resolve_env_secrets(conn_params: dict) -> dict:
     resolved = conn_params.copy() # shallow, but fine
     for key in list(resolved):
         if key.endswith('_env'):
-            resolved[key[:-len('_env')]] = os.environ[resolved.pop(key)]
+            try:
+                resolved[key[:-len('_env')]] = os.environ[resolved.pop(key)]
+            except KeyError as e:
+                raise MissingEnvVarError(key)
     return resolved

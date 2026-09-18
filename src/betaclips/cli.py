@@ -1,9 +1,11 @@
 import logging
+import sys
 from argparse import ArgumentParser
 
 from betaclips.config import LOG_FILE, init_dirs
 from betaclips.sync import sync_jobs, validate_jobs
 from betaclips.results.reporting import get_report
+from betaclips.exceptions import BetaclipsError
 
 logger = logging.getLogger(__name__)
 
@@ -64,12 +66,28 @@ def init(args):
     print("Initialization complete!")
 
 def validate(args):
-    results = validate_jobs(args.job_names)
-    print(get_report('validation', results))
+    try:
+        results = validate_jobs(args.job_names)
+        print(get_report('validation', results))
+    except BetaclipsError as e:
+        print(f"Error: {str(e)}")
+        sys.exit(1)
+    except Exception as e:
+        logger.exception("Unexpected error.")
+        print(f"Error, see logs at {LOG_FILE}")
+        sys.exit(1)
 
 def sync(args):
-    results = sync_jobs(args.job_names)
-    print(get_report('run', results))
+    try:
+        results = sync_jobs(args.job_names)
+        print(get_report('run', results))
+    except BetaclipsError as e:
+        print(f"Error: {str(e)}")
+        sys.exit(1)
+    except Exception as e:
+        logger.exception("Unexpected error.")
+        print(f"Error, see logs at {LOG_FILE}")
+        sys.exit(1)
 
 if __name__ == '__main__':
     main()

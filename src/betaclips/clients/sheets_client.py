@@ -1,3 +1,4 @@
+import json
 import logging
 from datetime import datetime, timezone
 
@@ -12,6 +13,8 @@ from betaclips.exceptions import (
     SheetNotFoundError,
     SpreadsheetPermissionError,
     SheetWriteError,
+    CredentialsParseError,
+    CredentialsNotFoundError,
 )
 
 logger = logging.getLogger(__name__)
@@ -26,10 +29,15 @@ class SheetsClient:
 
     @classmethod
     def from_service_account(cls, file_path: str):
-        creds = Credentials.from_service_account_file(
-            file_path,
-            scopes=cls.SCOPES,
-        )
+        try:
+            creds = Credentials.from_service_account_file(
+                file_path,
+                scopes=cls.SCOPES,
+            )
+        except FileNotFoundError as e:
+            raise CredentialsNotFoundError(file_path)
+        except (json.JSONDecodeError, ValueError) as e:
+            raise CredentialsParseError
         return cls(build('sheets', 'v4', credentials=creds))
 
     def write(

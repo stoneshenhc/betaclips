@@ -1,8 +1,5 @@
 # betaclips
-Simple CLI program for syncing analytical queries from data warehouses to Google Sheets for last mile analysis. Name inspired by Dataclips functionality in Heroku.
-
-## Overview
-Betaclips takes a list of jobs, each specifying a database query and a Google Sheet destination, and runs them. Column headers are automatically bolded on the Google Sheet side with a note in A1 specifying the last sync time. Note that you are on the hook for the actual scheduling of these jobs if you want them to run automatically.
+Simple CLI program for syncing analytical queries from Snowflake to Google Sheets for last mile analysis.
 
 ## Installation
 [Coming soon using git-based tag-pinned install]
@@ -15,15 +12,39 @@ Your Snowflake connection and auth method are defined within the main config tom
 For Google, follow the [official documentation](https://developers.google.com/workspace/guides/create-credentials#service-account) to create a service account, an associated key, and download the json. Rename the json file `betaclips-service-account.json` and put it into the specific credentials folder that was created by the `betaclips init` command (it can be rerun to echo back where all the folder locations are). Note that you will have to share any spreadsheet you want betaclips to sync into with the service account you just created prior.
 
 ## Usage
-The following commands are supported:
+The following commands are available:
 
 ```
-betaclips init                                  creates all necessary config and log folders and templates
-betaclips validate -j --job-names ...           smoke screen tests all/specific jobs
-betaclips sync -j --job-names ...               runs the sync for all/specific jobs
+usage: betaclips {init,validate,sync} ...
+positional arguments:
+  {init,validate,sync}  Choose what you want betaclips to do
+    init                Sets up the initial folders required for betaclips
+    validate            Runs series of smoke checks on configured jobs
+    sync                Executes a sync run of all enabled configured jobs
+
+usage: betaclips init
+
+usage: betaclips validate [-j JOB_NAMES [JOB_NAMES ...]]
+options:
+  -j JOB_NAMES [JOB_NAMES ...], --job-names JOB_NAMES [JOB_NAMES ...]
+                        Run checks on one specific job
+
+usage: betaclips sync [-j JOB_NAMES [JOB_NAMES ...]]
+options:
+  -j JOB_NAMES [JOB_NAMES ...], --job-names JOB_NAMES [JOB_NAMES ...]
+                        Executes a sync run of one specific job
 ```
 
-If not job names are specified by `validate` or `sync` then all enabled jobs will be in scope. Jobs are defined in the `config.toml` that is generated from the `init` command. The initial template lays out all the supported parameters of a given job.
+Jobs are defined in the `config.toml` that is generated from the `init` command. The initial template lays out all the supported parameters of a given job.
+
+In addition, betaclips supports:
+- Bolding of column headers in Google Sheets
+- Notes in all written-to Google Sheets indicating time of last sync
+- Chunks large query result sets into 2MB batch writes to Sheets for performance
+- Environment variable indirection in snowflake config parameters using `_env` suffix for keys
+
+You are on the hook for scheduling or distributing these syncs.
 
 ## Final words
 Thanks and happy syncing!
+

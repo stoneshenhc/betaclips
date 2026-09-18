@@ -1,8 +1,14 @@
+import json
 import logging
 
 from google.oauth2.service_account import Credentials
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
+
+from betaclips.exceptions import (
+    CredentialsParseError,
+    CredentialsNotFoundError,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -15,10 +21,15 @@ class DriveClient:
 
     @classmethod
     def from_service_account(cls, file_path):
-        creds = Credentials.from_service_account_file(
-            file_path,
-            scopes=cls.SCOPES,
-        )
+        try:
+            creds = Credentials.from_service_account_file(
+                file_path,
+                scopes=cls.SCOPES,
+            )
+        except FileNotFoundError as e:
+            raise CredentialsNotFoundError(file_path)
+        except (json.JSONDecodeError, ValueError) as e:
+            raise CredentialsParseError
         return cls(build('drive', 'v3', credentials=creds))
 
     def get_permissions(self, file_id: str) -> list:

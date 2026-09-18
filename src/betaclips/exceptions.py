@@ -106,8 +106,55 @@ class MismatchWriteError(JobError):
 
 
 class PartialWriteError(MismatchWriteError):
-    pass
+    """Fewer rows written into Sheet than in query results"""
 
 
 class ExcessiveWriteError(MismatchWriteError):
-    pass
+    """More rows written into Sheet than in query results"""
+
+
+class ConfigError(BetaclipsError):
+    """Category for errors that are tied to program/job configuration"""
+
+
+class ConfigNotFoundError(ConfigError):
+    """Configuration file does not exist"""
+
+    def __init__(self, path: str):
+        self.path = path
+        super().__init__(
+            f"No config file found at {path}. Run `betaclips init` first."
+        )
+
+
+class ConfigParseError(ConfigError):
+    """Configuration toml exists, but we run into an issue parsing it"""
+
+    def __init__(self, error: str):
+        self.error = error
+        super().__init__(f"Issue parsing config file: {error}")
+
+
+class MissingEnvVarError(ConfigError):
+    """Environment variable indirection is defined in config, but associated env var does not actually exist"""
+
+    def __init__(self, env_key: str):
+        self.env_key = env_key
+        super().__init__(f"No env var associated with {env_key} key in config")
+
+
+class CredentialsNotFoundError(ConfigError):
+    """Google service account credentials json file does not exist"""
+
+    def __init__(self, path: str):
+        self.path = path
+        super().__init__(f"No service account json file found at {path}")
+
+
+class CredentialsParseError(ConfigError):
+    """Google service account credentails file exists but parsing issue"""
+
+    def __init__(self):
+        super().__init__(
+            "Google service account json incorrectly formatted or missing keys."
+        )
